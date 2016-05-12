@@ -40,9 +40,7 @@ body{
 	  <p id="p_mail" class="detail"><i class="fa fa-envelope-o" aria-hidden="true"></i> <?php echo $contacto['email']; ?></p>
 	  <hr/>
 	  <form  method="post" style="margin-bottom:15px;">
-	  
-	  <input type="hidden" name="email" value="<?php echo $contacto['email']; ?>">
-        
+	          
         <button name="Enviar" type="submit" class="btn btn-success"  id="Enviar">Eliminar</button>
         <a class="btn btn-danger" href="<?php echo $_SERVER['PHP_SELF']; ?>">Cancelar</a>
       </form>

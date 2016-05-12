@@ -45,10 +45,10 @@ function grabe($post)
 	}
 }
 
-function borre($email)
+function borre($em)
 {
-	$contacto = obtenga($email);
-	if($contacto != NULL)
+	$contacto = obtenga($em);
+	if($contacto !== NULL)
 	{
 		$file = fopen('contactos.txt', 'a+');
 		$file_tmp = fopen('contactos_tmp.txt', 'a+');
@@ -63,18 +63,19 @@ function borre($email)
 		$email = fgets($file);
 		if($email !== $em."\n")
 		{
-			if (fputs($file_tmp, trim($contacto['nombre'])."\n".trim($contacto['apellidos'])."\n".trim($contacto['tel_c'])."\n".trim($contacto['dir_c'])."\n".trim($contacto['tel_t'])."\n".trim($contacto['dir_t'])."\n".trim($contacto['email'])."\n") <= 0)
-			
-		else
+		if (fputs($file_tmp, trim($contacto['nombre'])."\n".trim($contacto['apellidos'])."\n".trim($contacto['tel_c'])."\n".trim($contacto['dir_c'])."\n".trim($contacto['tel_t'])."\n".trim($contacto['dir_t'])."\n".trim($contacto['email'])."\n") <= 0)
 		{
 			fclose($file);
 			fclose($file_tmp);
 			return 0;
 		}
 		}
-	} // while
-	
-		
+	} // while	
+	fclose($file);
+	fclose($file_tmp);
+	unlink('contactos.txt');
+	rename('contactos_tmp.txt', 'contactos.txt'); 
+	return 1;
 	}else
 	{
 		return -1;
@@ -141,34 +142,31 @@ class VisitasController extends Solsoft\ekeke\Controller {
 	
 	function borrar()
 	{
-		if ($_SERVER['REQUEST_METHOD'] === 'POST')
+		if (isset($_REQUEST['email']))
 		{
-			$res = grabe2($_POST);
-			if ($res == 1)
+			if(!empty($_REQUEST['email']))
 			{
-				$this->view->assign('tipo','success');
-				$this->view->assign('mensaje', 'El contacto se ha modificado satisfactoriamente.');
-			}
-			else if($res == 0)
-			{
-				$this->view->assign('tipo','danger');
-				$this->view->assign('mensaje', 'El contacto no se pudo modificar.');
-			}
-			else
-			{
-				$this->view->assign('tipo','danger');
-				$this->view->assign('mensaje', 'El contacto no se pudo modificar, el correo electr&oacute;nico ya est&aacute; asociado a un contacto.');
-			}
-			$contacto = array('nombre' => $_POST['nombre'], 'apellidos' => $_POST['apellidos'], 'tel_c' => $_POST['tel_c'], 'dir_c' => $_POST['dir_c'], 'tel_t' => $_POST['tel_t'], 'dir_t' => $_POST['dir_t'], 'email' => $_POST['email']);
-			$this->view->assign('contacto', $contacto);
-		}else
-		{
-			if (isset($_REQUEST['email']))
-			{
-				if(!empty($_REQUEST['email']))
+				if ($_SERVER['REQUEST_METHOD'] === 'POST')
+				{
+					$res = borre($_REQUEST['email']);
+					if ($res == 1)
+					{
+						$this->view->assign('tipo','success');
+						$this->view->assign('mensaje', 'El contacto se ha borrado satisfactoriamente.');
+					}
+					else if($res == 0)
+					{
+						$this->view->assign('tipo','danger');
+						$this->view->assign('mensaje', 'El contacto no se pudo borrar.');
+					}
+					else
+					{
+						$this->view->assign('tipo','danger');
+						$this->view->assign('mensaje', 'El contacto no se borrar porque no existe en la base de datos.');
+					}
+				}else
 				{
 					$contacto = obtenga($_REQUEST['email']);
-					
 					if($contacto == NULL)
 					{
 						$this->view->assign('tipo','danger');
@@ -181,11 +179,6 @@ class VisitasController extends Solsoft\ekeke\Controller {
 						$this->view->assign('mensaje','Confirme para eliminar.');
 					}
 				}
-				else
-				{
-					$this->view->assign('tipo','danger');
-					$this->view->assign('mensaje','Error al recuperar el correo electr&oacute;nico.');
-				}
 			}
 			else
 			{
@@ -193,6 +186,12 @@ class VisitasController extends Solsoft\ekeke\Controller {
 				$this->view->assign('mensaje','Error al recuperar el correo electr&oacute;nico.');
 			}
 		}
+		else
+		{
+			$this->view->assign('tipo','danger');
+			$this->view->assign('mensaje','Error al recuperar el correo electr&oacute;nico.');
+		}
+		
 	}
 	
 	function editar()

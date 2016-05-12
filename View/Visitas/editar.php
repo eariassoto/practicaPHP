@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <title>Agregar Contacto</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<style>
+body{
+	padding-top: 20px;
+}
+</style>
 </head>
 <body>
 <div class="container">
@@ -44,7 +50,7 @@
           <label>Correo electrónico</label>
           <input type="email" class="form-control" name="email" placeholder="Formato: example@mail.com" value="<?php echo $contacto['email']; ?>"  required>
         </div>
-        <button name="Enviar" type="submit" class="btn btn-primary"  id="Enviar">Editar</button>
+        <button name="Enviar" type="submit" class="btn btn-success"  id="Enviar">Guardar</button>
         <a class="btn btn-danger" href="<?php echo $_SERVER['PHP_SELF']; ?>">Cancelar</a>
       </form>
     </div>

@@ -39,7 +39,7 @@
           <td><?php echo $contacto['dir_t']; ?></td>
           <td><a href="mailto:<?php echo $contacto['email']; ?>" target="_top"><?php echo $contacto['email']; ?></a></td>
           <td><a class="btn btn-primary" href="<?php echo $_SERVER['PHP_SELF']; ?>?action=editar&email=<?php echo $contacto['email']; ?>" role="button">Editar</a></td>
-          <td><a class="btn btn-danger" href="#" role="button">Borrar</a></td>
+          <td><a class="btn btn-danger" href="<?php echo $_SERVER['PHP_SELF']; ?>?action=borrar&email=<?php echo $contacto['email']; ?>" role="button">Borrar</a></td>
         </tr>
         <?php
         }

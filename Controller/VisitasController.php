@@ -25,12 +25,11 @@ function obtenga($em) {
 
 function grabe($post)
 {
-
 	if(obtenga($post['email']) == NULL)
 	{
 		$file = fopen('contactos.txt', 'a+');
 	
-		if (fputs($file, $post['nombre']."\n".$post['apellidos']."\n".$post['tel_c']."\n".$post['dir_c']."\n".$post['tel_t']."\n".$post['dir_t']."\n".$post['email']."\n") > 0)
+		if (fputs($file, trim($post['nombre'])."\n".trim($post['apellidos'])."\n".trim($post['tel_c'])."\n".trim($post['dir_c'])."\n".trim($post['tel_t'])."\n".trim($post['dir_t'])."\n".trim($post['email'])."\n") > 0)
 		{
 			fclose($file);
 			return 1;
@@ -40,6 +39,42 @@ function grabe($post)
 			fclose($file);
 			return 0;
 		}
+	}else
+	{
+		return -1;
+	}
+}
+
+function borre($email)
+{
+	$contacto = obtenga($email);
+	if($contacto != NULL)
+	{
+		$file = fopen('contactos.txt', 'a+');
+		$file_tmp = fopen('contactos_tmp.txt', 'a+');
+		
+		while(($nombre = fgets($file)) && !feof($file))
+		{
+		$apellidos = fgets($file);
+		$tel_c = fgets($file);
+		$dir_c = fgets($file);
+		$tel_t = fgets($file);
+		$dir_t = fgets($file);
+		$email = fgets($file);
+		if($email !== $em."\n")
+		{
+			if (fputs($file_tmp, trim($contacto['nombre'])."\n".trim($contacto['apellidos'])."\n".trim($contacto['tel_c'])."\n".trim($contacto['dir_c'])."\n".trim($contacto['tel_t'])."\n".trim($contacto['dir_t'])."\n".trim($contacto['email'])."\n") <= 0)
+			
+		else
+		{
+			fclose($file);
+			fclose($file_tmp);
+			return 0;
+		}
+		}
+	} // while
+	
+		
 	}else
 	{
 		return -1;
@@ -104,24 +139,52 @@ class VisitasController extends Solsoft\ekeke\Controller {
 		}
 	}
 	
-	function editar()
+	function borrar()
 	{
-		if (isset($_REQUEST['email']))
+		if ($_SERVER['REQUEST_METHOD'] === 'POST')
 		{
-			if(!empty($_REQUEST['email']))
+			$res = grabe2($_POST);
+			if ($res == 1)
 			{
-				$contacto = obtenga($_REQUEST['email']);
-				
-				if($contacto == NULL)
+				$this->view->assign('tipo','success');
+				$this->view->assign('mensaje', 'El contacto se ha modificado satisfactoriamente.');
+			}
+			else if($res == 0)
+			{
+				$this->view->assign('tipo','danger');
+				$this->view->assign('mensaje', 'El contacto no se pudo modificar.');
+			}
+			else
+			{
+				$this->view->assign('tipo','danger');
+				$this->view->assign('mensaje', 'El contacto no se pudo modificar, el correo electr&oacute;nico ya est&aacute; asociado a un contacto.');
+			}
+			$contacto = array('nombre' => $_POST['nombre'], 'apellidos' => $_POST['apellidos'], 'tel_c' => $_POST['tel_c'], 'dir_c' => $_POST['dir_c'], 'tel_t' => $_POST['tel_t'], 'dir_t' => $_POST['dir_t'], 'email' => $_POST['email']);
+			$this->view->assign('contacto', $contacto);
+		}else
+		{
+			if (isset($_REQUEST['email']))
+			{
+				if(!empty($_REQUEST['email']))
+				{
+					$contacto = obtenga($_REQUEST['email']);
+					
+					if($contacto == NULL)
+					{
+						$this->view->assign('tipo','danger');
+						$this->view->assign('mensaje', 'El correo electr&oacute;nico no existe en ning&uacute;n contacto.');
+					}else
+					{
+						$this->view->assign('contacto', $contacto);
+						
+						$this->view->assign('tipo','info');
+						$this->view->assign('mensaje','Confirme para eliminar.');
+					}
+				}
+				else
 				{
 					$this->view->assign('tipo','danger');
-					$this->view->assign('mensaje', 'El correo electr&oacute;nico no existe en ning&uacute;n contacto.');
-				}else
-				{
-					$this->view->assign('contacto', $contacto);
-					
-					$this->view->assign('tipo','info');
-					$this->view->assign('mensaje','Modifique la informaci&oacute;n del contacto.');
+					$this->view->assign('mensaje','Error al recuperar el correo electr&oacute;nico.');
 				}
 			}
 			else
@@ -130,10 +193,61 @@ class VisitasController extends Solsoft\ekeke\Controller {
 				$this->view->assign('mensaje','Error al recuperar el correo electr&oacute;nico.');
 			}
 		}
-		else
+	}
+	
+	function editar()
+	{
+		if ($_SERVER['REQUEST_METHOD'] === 'POST')
 		{
-			$this->view->assign('tipo','danger');
-			$this->view->assign('mensaje','Error al recuperar el correo electr&oacute;nico.');
+			$res = grabe2($_POST);
+			if ($res == 1)
+			{
+				$this->view->assign('tipo','success');
+				$this->view->assign('mensaje', 'El contacto se ha modificado satisfactoriamente.');
+			}
+			else if($res == 0)
+			{
+				$this->view->assign('tipo','danger');
+				$this->view->assign('mensaje', 'El contacto no se pudo modificar.');
+			}
+			else
+			{
+				$this->view->assign('tipo','danger');
+				$this->view->assign('mensaje', 'El contacto no se pudo modificar, el correo electr&oacute;nico ya est&aacute; asociado a un contacto.');
+			}
+			$contacto = array('nombre' => $_POST['nombre'], 'apellidos' => $_POST['apellidos'], 'tel_c' => $_POST['tel_c'], 'dir_c' => $_POST['dir_c'], 'tel_t' => $_POST['tel_t'], 'dir_t' => $_POST['dir_t'], 'email' => $_POST['email']);
+			$this->view->assign('contacto', $contacto);
+		}else
+		{
+			if (isset($_REQUEST['email']))
+			{
+				if(!empty($_REQUEST['email']))
+				{
+					$contacto = obtenga($_REQUEST['email']);
+					
+					if($contacto == NULL)
+					{
+						$this->view->assign('tipo','danger');
+						$this->view->assign('mensaje', 'El correo electr&oacute;nico no existe en ning&uacute;n contacto.');
+					}else
+					{
+						$this->view->assign('contacto', $contacto);
+						
+						$this->view->assign('tipo','info');
+						$this->view->assign('mensaje','Modifique la informaci&oacute;n del contacto.');
+					}
+				}
+				else
+				{
+					$this->view->assign('tipo','danger');
+					$this->view->assign('mensaje','Error al recuperar el correo electr&oacute;nico.');
+				}
+			}
+			else
+			{
+				$this->view->assign('tipo','danger');
+				$this->view->assign('mensaje','Error al recuperar el correo electr&oacute;nico.');
+			}
 		}
 	}
 }
